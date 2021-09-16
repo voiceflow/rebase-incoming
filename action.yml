@@ -1,0 +1,35 @@
+name: Auto-Rebase Incoming Pull Requests
+description:  Keep pull request to this branch rebased to the latest commit
+branding:
+  icon: git-pull-request
+  color: yellow
+
+inputs:
+  token:
+    required: true
+    description: Github Token used to make API request to fetch pull requests from the current owner/repo.
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout the latest code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ inputs.token }}
+        fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+
+    - name: Get all pull requests
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        BASE_BRANCH="${GITHUB_REF#refs/heads/}"
+        echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) | map(.number)[]") >> $GITHUB_ENV
+
+    - name: Automatic Rebase
+      uses: voiceflow/rebase-many@v1.0
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        PR_NUMBERS: ${{ env.PRS_TO_REBASE }}
+        COMMENT_ON_FAILURE: 'true'
