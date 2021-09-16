@@ -1,5 +1,5 @@
 name: Auto-Rebase Incoming Pull Requests
-description:  Keep pull request to this branch rebased to the latest commit
+description: Keep pull request to this branch rebased to the latest commit
 branding:
   icon: git-pull-request
   color: yellow
@@ -9,6 +9,10 @@ inputs:
     required: true
     description: Github Token used to make API request to fetch pull requests from the current owner/repo.
     default: ${{ github.token }}
+  comment-on-failure:
+    required: false
+    description: Whether to post a comment in each pull request if it fails to rebase automatically
+    default: 'true'
 
 runs:
   using: composite
@@ -32,4 +36,4 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         PR_NUMBERS: ${{ env.PRS_TO_REBASE }}
-        COMMENT_ON_FAILURE: 'true'
+        COMMENT_ON_FAILURE: ${{ inputs.comment-on-failure }}
