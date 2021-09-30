@@ -32,7 +32,7 @@ runs:
         echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) | map(.number)[]") >> $GITHUB_ENV
 
     - name: Automatic Rebase
-      uses: voiceflow/rebase-many@v1.0
+      uses: voiceflow/rebase-many@v1.1
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         PR_NUMBERS: ${{ env.PRS_TO_REBASE }}
