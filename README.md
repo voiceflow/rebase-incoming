@@ -30,7 +30,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-failure: 'true'
-          comment-on-failure: 'false'
+          label-on-failure: 'false'
 ```
 
 ## License
