@@ -13,6 +13,10 @@ inputs:
     required: false
     description: Whether to post a comment in each pull request if it fails to rebase automatically
     default: 'true'
+  label-on-failure:
+    required: false
+    description: Whether to add a label in each pull request if it fails to rebase automatically. This label blocks further failure comments from being posted
+    default: 'true'
 
 runs:
   using: composite
@@ -32,8 +36,9 @@ runs:
         echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) | map(.number)[]") >> $GITHUB_ENV
 
     - name: Automatic Rebase
-      uses: voiceflow/rebase-many@v1.1
+      uses: voiceflow/rebase-many@v1.2
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         PR_NUMBERS: ${{ env.PRS_TO_REBASE }}
         COMMENT_ON_FAILURE: ${{ inputs.comment-on-failure }}
+        LABEL_ON_FAILURE: ${{ inputs.label-on-failure }}
