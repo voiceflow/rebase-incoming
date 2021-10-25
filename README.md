@@ -9,6 +9,7 @@ Attempts to rebase all pull requests targeting the current branch.
 - `token`: The GitHub token to allow authenticated actions
 - `comment-on-failure`: When set to `'true'`, if any pull request fails to rebase, a comment will be made on that pull request with details of the failure.
 - `label-on-failure`: When set to `'true'`, if any pull request fails to rebase, a label that blocks further failure comments will be added to that pull request.
+- `skip-drafts`: When set to `'true'`, will skip pull requests that are marked as drafts (`true` by default)
 
 ### Example Workflow
 

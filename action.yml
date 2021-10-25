@@ -17,6 +17,10 @@ inputs:
     required: false
     description: Whether to add a label in each pull request if it fails to rebase automatically. This label blocks further failure comments from being posted
     default: 'true'
+  skip-drafts:
+    required: false
+    description: Whether to skip draft pull requests
+    default: 'true'
 
 runs:
   using: composite
@@ -31,9 +35,11 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+        SKIP_DRAFTS: ${{ inputs.skip-drafts }}
       run: |
         BASE_BRANCH="${GITHUB_REF#refs/heads/}"
-        echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) | map(.number)[]") >> $GITHUB_ENV
+        "$SKIP_DRAFTS" && DRAFT_FILTER='| map(select(.isDraft == false))' || DRAFT_FILTER=''
+        echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --json=isDraft --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) $DRAFT_FILTER | map(.number)[]") >> $GITHUB_ENV
 
     - name: Automatic Rebase
       uses: voiceflow/rebase-many@v1.2
