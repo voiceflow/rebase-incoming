@@ -21,6 +21,10 @@ inputs:
     required: false
     description: Whether to skip draft pull requests
     default: 'true'
+  check-bors-is-running:
+    required: false
+    description: Whether to skip pull requests if bors is running
+    default: 'true'
 
 runs:
   using: composite
@@ -38,13 +42,14 @@ runs:
         SKIP_DRAFTS: ${{ inputs.skip-drafts }}
       run: |
         BASE_BRANCH="${GITHUB_REF#refs/heads/}"
-        "$SKIP_DRAFTS" && DRAFT_FILTER='| map(select(.isDraft == false))' || DRAFT_FILTER=''
-        echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --json=isDraft --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) $DRAFT_FILTER | map(.number)[]") >> $GITHUB_ENV
+        echo 'PRS_TO_REBASE='$(gh pr list --state open --json=baseRefName --json=number --json=isDraft --jq "map(select(.baseRefName == \"$BASE_BRANCH\")) | map(.number)[]") >> $GITHUB_ENV
 
     - name: Automatic Rebase
-      uses: voiceflow/rebase-many@v1.2
+      uses: voiceflow/rebase-many@latest
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         PR_NUMBERS: ${{ env.PRS_TO_REBASE }}
         COMMENT_ON_FAILURE: ${{ inputs.comment-on-failure }}
         LABEL_ON_FAILURE: ${{ inputs.label-on-failure }}
+        CHECK_DRAFT: ${{ inputs.skip-drafts }}
+        CHECK_BORS: ${{ inputs.check-bors-is-running }}
